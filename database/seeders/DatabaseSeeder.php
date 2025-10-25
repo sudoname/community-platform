@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +13,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create admin user
+        User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@community.test',
+            'password' => Hash::make('password'),
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Create paid member
+        User::create([
+            'name' => 'Premium Member',
+            'email' => 'premium@community.test',
+            'password' => Hash::make('password'),
+            'role' => 'paid_member',
+            'is_active' => true,
+        ]);
+
+        // Create free member
+        User::create([
+            'name' => 'Free Member',
+            'email' => 'free@community.test',
+            'password' => Hash::make('password'),
+            'role' => 'free_member',
+            'is_active' => true,
+        ]);
+
+        // Seed channels and forum categories
+        $this->call([
+            ChannelSeeder::class,
+            ForumCategorySeeder::class,
         ]);
     }
 }
