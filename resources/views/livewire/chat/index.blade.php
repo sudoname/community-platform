@@ -1,4 +1,5 @@
 <x-app-layout>
+<livewire:layout.navigation />
 <div class="flex h-screen bg-gray-100">
     <!-- Sidebar - Channel List -->
     <div class="w-64 bg-gray-800 text-white flex-shrink-0">

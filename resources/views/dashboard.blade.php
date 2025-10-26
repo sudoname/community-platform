@@ -36,7 +36,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <!-- Stock Marquee for Paid Members -->
-            @if(auth()->user()->role === 'paid_member')
+            @if(in_array(auth()->user()->role, ['paid_member', 'admin']))
                 @php
                     $marqueeStocks = \App\Models\Recommendation::active()->marquee()->ordered()->get();
                 @endphp
