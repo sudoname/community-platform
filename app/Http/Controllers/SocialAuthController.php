@@ -16,6 +16,14 @@ class SocialAuthController extends Controller
      */
     public function redirect($provider)
     {
+        // For Facebook, we need to specify fields explicitly
+        if ($provider === 'facebook') {
+            return Socialite::driver($provider)
+                ->fields(['name', 'email'])
+                ->scopes(['public_profile'])
+                ->redirect();
+        }
+
         return Socialite::driver($provider)->redirect();
     }
 
