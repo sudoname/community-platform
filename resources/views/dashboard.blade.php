@@ -48,6 +48,7 @@
                                     @foreach($marqueeStocks as $stock)
                                         <span class="flex items-center gap-2 whitespace-nowrap text-sm font-semibold">
                                             <span class="text-yellow-300">{{ $stock->stock_symbol }}</span>
+                                            <span class="text-xs text-gray-300">{{ $stock->type === 'option' ? 'OPTION' : 'STOCK' }}</span>
                                             @if($stock->type === 'option')
                                                 <span class="text-xs text-gray-200">{{ strtoupper($stock->option_type) }} ${{ number_format($stock->strike_price, 2) }} {{ $stock->expiration_date ? $stock->expiration_date->format('m/d/y') : '' }}</span>
                                             @endif
@@ -66,6 +67,7 @@
                                     @foreach($marqueeStocks as $stock)
                                         <span class="flex items-center gap-2 whitespace-nowrap text-sm font-semibold">
                                             <span class="text-yellow-300">{{ $stock->stock_symbol }}</span>
+                                            <span class="text-xs text-gray-300">{{ $stock->type === 'option' ? 'OPTION' : 'STOCK' }}</span>
                                             @if($stock->type === 'option')
                                                 <span class="text-xs text-gray-200">{{ strtoupper($stock->option_type) }} ${{ number_format($stock->strike_price, 2) }} {{ $stock->expiration_date ? $stock->expiration_date->format('m/d/y') : '' }}</span>
                                             @endif
