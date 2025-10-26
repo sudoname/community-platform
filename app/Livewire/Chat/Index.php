@@ -5,6 +5,7 @@ namespace App\Livewire\Chat;
 use App\Models\Channel;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Layout;
 
 class Index extends Component
 {
@@ -54,6 +55,7 @@ class Index extends Component
         $this->dispatch('channel-changed', channelId: $channelId);
     }
 
+    #[Layout('components.app-layout')]
     public function render()
     {
         return view('livewire.chat.index');
