@@ -16,11 +16,13 @@ class Channel extends Model
         'is_private',
         'required_role',
         'is_active',
+        'allowed_roles',
     ];
 
     protected $casts = [
         'is_private' => 'boolean',
         'is_active' => 'boolean',
+        'allowed_roles' => 'json',
     ];
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Livewire\Chat;
 
 use App\Models\Message;
+use App\Events\MessageSent;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -31,17 +32,23 @@ class MessageForm extends Component
             return;
         }
 
-        Message::create([
+        $message = Message::create([
             'channel_id' => $this->channelId,
             'user_id' => auth()->id(),
             'content' => $this->content,
             'reply_to_message_id' => $this->replyToMessageId,
         ]);
 
+        // Extract and sync hashtags from content
+        $message->syncTagsFromContent();
+
+        // Broadcast the message to all users in the channel
+        broadcast(new MessageSent($message))->toOthers();
+
         $this->content = '';
         $this->replyToMessageId = null;
 
-        // Notify MessageList to reload
+        // Notify MessageList to reload locally
         $this->dispatch('message-sent');
     }
 

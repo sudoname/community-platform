@@ -47,6 +47,34 @@ class Message extends Model
         return $this->hasMany(Message::class, 'reply_to_message_id');
     }
 
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    /**
+     * Attach tags from content
+     */
+    public function syncTagsFromContent()
+    {
+        $hashtags = Tag::extractHashtags($this->content);
+        $tagIds = [];
+
+        foreach ($hashtags as $tagName) {
+            $tag = Tag::findOrCreateByName($tagName);
+            $tagIds[] = $tag->id;
+        }
+
+        // Sync tags (attach new, detach old)
+        $this->tags()->sync($tagIds);
+
+        // Update usage counts
+        foreach ($this->tags as $tag) {
+            $tag->usage_count = $tag->messages()->count() + $tag->forumTopics()->count() + $tag->forumPosts()->count();
+            $tag->save();
+        }
+    }
+
     /**
      * Scopes
      */

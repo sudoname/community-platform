@@ -15,6 +15,7 @@ class ForumTopic extends Model
         'content',
         'is_pinned',
         'is_locked',
+        'allowed_roles',
         'views_count',
         'replies_count',
         'last_activity_at',
@@ -23,6 +24,7 @@ class ForumTopic extends Model
     protected $casts = [
         'is_pinned' => 'boolean',
         'is_locked' => 'boolean',
+        'allowed_roles' => 'array',
         'last_activity_at' => 'datetime',
     ];
 
@@ -65,6 +67,34 @@ class ForumTopic extends Model
     public function posts()
     {
         return $this->hasMany(ForumPost::class, 'topic_id')->orderBy('created_at');
+    }
+
+    public function tags()
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
+    }
+
+    /**
+     * Attach tags from content
+     */
+    public function syncTagsFromContent()
+    {
+        $hashtags = Tag::extractHashtags($this->content);
+        $tagIds = [];
+
+        foreach ($hashtags as $tagName) {
+            $tag = Tag::findOrCreateByName($tagName);
+            $tagIds[] = $tag->id;
+        }
+
+        // Sync tags (attach new, detach old)
+        $this->tags()->sync($tagIds);
+
+        // Update usage counts
+        foreach ($this->tags as $tag) {
+            $tag->usage_count = $tag->messages()->count() + $tag->forumTopics()->count() + $tag->forumPosts()->count();
+            $tag->save();
+        }
     }
 
     /**

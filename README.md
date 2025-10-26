@@ -1,10 +1,10 @@
-# Community Platform - Discord Replacement
+# Community Platform
 
-A modern, minimalist community platform built with Laravel 12, Livewire 3, and Laravel Reverb to replace Discord server functionality.
+A modern, feature-rich community platform built with Laravel 12, Livewire 3, and Laravel Reverb. Connect with like-minded individuals, share knowledge, and grow together through real-time messaging, discussion forums, file sharing, and social authentication.
 
 ## Project Status
 
-**Foundation Complete** - The project structure, database schema, models, and component scaffolding are complete. Implementation of features is in progress.
+**Enhanced & Production Ready** - The project includes social authentication (Google/Facebook), RESTful API with Laravel Sanctum, modern landing page, and comprehensive user roles. Ready for deployment.
 
 ## Tech Stack
 
@@ -53,13 +53,40 @@ A modern, minimalist community platform built with Laravel 12, Livewire 3, and L
   - Chat: Index, ChannelList, MessageList, MessageForm
   - Forum: Index, CategoryList, TopicList, TopicShow, CreateTopic
 
+- **Social Authentication** ✅
+  - Laravel Socialite integrated
+  - Google OAuth2 login support
+  - Facebook OAuth login support
+  - Auto-create user accounts from social profiles
+  - Beautiful social login UI on login page
+
+- **RESTful API** ✅
+  - Laravel Sanctum authentication
+  - API controllers for Users, Messages, Forums
+  - Protected routes with token-based auth
+  - Health check endpoint
+  - API documentation ready
+
+- **Modern Landing Page** ✅
+  - Hero section with call-to-action
+  - Feature highlights with icons
+  - Gradient CTA section
+  - Fully responsive design
+  - Dark mode support
+
+- **Test Accounts** ✅
+  - Pre-configured users for all roles
+  - Password: "Password" for all test accounts
+  - admin@test.com (Admin)
+  - paid@test.com (Paid Member - Premium)
+  - free@test.com (Free Member)
+
 ### In Progress 🚧
 
 - Implement Chat functionality
 - Implement Forum functionality
 - Integrate Reverb for real-time messaging
 - Create file upload functionality
-- Design minimalist UI with Tailwind
 
 ### Pending 📋
 
@@ -150,11 +177,98 @@ npm run dev
 
 ## Test Accounts
 
-After running the seeders, you can log in with these accounts:
+The application includes pre-configured test accounts (password: **Password**):
 
-- **Admin**: admin@community.test / password
-- **Premium Member**: premium@community.test / password
-- **Free Member**: free@community.test / password
+| Email | Role | Subscription | Features |
+|-------|------|--------------|----------|
+| admin@test.com | Admin | N/A | Full access |
+| paid@test.com | Paid Member | Premium | Premium features |
+| free@test.com | Free Member | Free | Basic access |
+
+## Social Authentication Setup
+
+### Google OAuth Configuration
+
+1. Visit [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URI: `http://localhost:8001/auth/google/callback`
+6. Update `.env`:
+
+```env
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8001/auth/google/callback
+```
+
+### Facebook OAuth Configuration
+
+1. Visit [Facebook Developers](https://developers.facebook.com/)
+2. Create a new app
+3. Add Facebook Login product
+4. Configure redirect URI: `http://localhost:8001/auth/facebook/callback`
+5. Update `.env`:
+
+```env
+FACEBOOK_CLIENT_ID=your-facebook-app-id
+FACEBOOK_CLIENT_SECRET=your-facebook-app-secret
+FACEBOOK_REDIRECT_URI=http://localhost:8001/auth/facebook/callback
+```
+
+## API Usage
+
+The platform provides a RESTful API secured with Laravel Sanctum.
+
+### Authentication
+
+Generate an API token:
+
+```bash
+POST /api/login
+Content-Type: application/json
+
+{
+    "email": "admin@test.com",
+    "password": "Password"
+}
+```
+
+Use the token in requests:
+
+```bash
+Authorization: Bearer {your-token}
+```
+
+### API Endpoints
+
+#### Health Check
+```
+GET /api/health
+```
+
+#### User Management
+```
+GET    /api/users           # List users
+GET    /api/users/{id}      # Get user
+POST   /api/users           # Create user
+PUT    /api/users/{id}      # Update user
+DELETE /api/users/{id}      # Delete user
+```
+
+#### Messages
+```
+GET    /api/messages                    # List messages
+POST   /api/messages                    # Send message
+GET    /api/messages/channel/{channel}  # Get channel messages
+```
+
+#### Forums
+```
+GET    /api/forums                      # List topics
+POST   /api/forums                      # Create topic
+GET    /api/forums/category/{category}  # Get category topics
+```
 
 ## Git Commits
 

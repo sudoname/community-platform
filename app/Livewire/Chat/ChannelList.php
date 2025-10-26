@@ -18,26 +18,28 @@ class ChannelList extends Component
     public function render()
     {
         $user = auth()->user();
+        $userRole = $user->role;
 
+        // Get all active channels and filter by role in PHP (for SQLite compatibility)
         $channels = Channel::active()
             ->ordered()
-            ->where(function($query) use ($user) {
-                $query->where('is_private', false)
-                    ->orWhere(function($q) use ($user) {
-                        // Show private channels based on user role
-                        $q->where('is_private', true)
-                          ->where(function($roleQuery) use ($user) {
-                              if ($user->isAdmin()) {
-                                  $roleQuery->whereIn('required_role', ['admin', 'paid_member', 'free_member']);
-                              } elseif ($user->isPaidMember()) {
-                                  $roleQuery->whereIn('required_role', ['paid_member', 'free_member']);
-                              } else {
-                                  $roleQuery->where('required_role', 'free_member');
-                              }
-                          });
-                    });
-            })
-            ->get();
+            ->get()
+            ->filter(function($channel) use ($userRole) {
+                $allowedRoles = $channel->allowed_roles;
+
+                // Handle if allowed_roles is a JSON string (cast not working)
+                if (is_string($allowedRoles)) {
+                    $allowedRoles = json_decode($allowedRoles, true);
+                }
+
+                // If allowed_roles is null or empty, allow all
+                if (empty($allowedRoles)) {
+                    return true;
+                }
+
+                // Check if user's role is in allowed_roles array
+                return in_array($userRole, $allowedRoles);
+            });
 
         return view('livewire.chat.channel-list', [
             'channels' => $channels,

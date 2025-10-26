@@ -1,4 +1,30 @@
-<div class="p-6 space-y-4">
+<div class="p-6 space-y-4" x-data="{ channelId: @entangle('channelId') }" x-init="
+    let channel = null;
+
+    $watch('channelId', (newChannelId) => {
+        if (channel) {
+            Echo.leave('chat.channel.' + channel);
+        }
+        if (newChannelId) {
+            channel = newChannelId;
+            Echo.join('chat.channel.' + newChannelId)
+                .listen('.message.sent', (e) => {
+                    console.log('New message received:', e);
+                    $wire.loadMessages();
+                });
+        }
+    });
+
+    // Initial subscription
+    if (channelId) {
+        channel = channelId;
+        Echo.join('chat.channel.' + channelId)
+            .listen('.message.sent', (e) => {
+                console.log('New message received:', e);
+                $wire.loadMessages();
+            });
+    }
+">
     @forelse($messages as $message)
         <div class="flex space-x-3">
             <!-- Avatar -->
@@ -16,6 +42,18 @@
                     @if($message->is_edited)
                         <span class="text-xs text-gray-400">(edited)</span>
                     @endif
+
+                    @if(auth()->user()->isAdmin())
+                        <span class="text-xs">
+                            @if($editingMessageId === $message->id)
+                                <button wire:click="saveEdit({{ $message->id }})" class="text-green-600 hover:text-green-800 mr-1">Save</button>
+                                <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-800">Cancel</button>
+                            @else
+                                <button wire:click="startEdit({{ $message->id }}, '{{ addslashes($message->content) }}')" class="text-blue-600 hover:text-blue-800 mr-1">Edit</button>
+                                <button wire:click="deleteMessage({{ $message->id }})" onclick="return confirm('Delete this message?')" class="text-red-600 hover:text-red-800">Delete</button>
+                            @endif
+                        </span>
+                    @endif
                 </div>
 
                 <!-- Reply Context -->
@@ -26,10 +64,16 @@
                     </div>
                 @endif
 
-                <!-- Message Text -->
-                <div class="mt-1 text-gray-800 break-words">
-                    {{ $message->content }}
-                </div>
+                <!-- Message Text or Edit Form -->
+                @if($editingMessageId === $message->id)
+                    <div class="mt-1">
+                        <textarea wire:model="editContent" class="w-full border rounded p-2 text-sm" rows="3"></textarea>
+                    </div>
+                @else
+                    <div class="mt-1 text-gray-800 break-words">
+                        {{ $message->content }}
+                    </div>
+                @endif
 
                 @if($message->is_pinned)
                     <div class="mt-1">
