@@ -16,11 +16,11 @@ class SocialAuthController extends Controller
      */
     public function redirect($provider)
     {
-        // For Facebook, we need to specify fields explicitly
+        // For Facebook, only use public_profile scope (email is not a valid scope anymore)
         if ($provider === 'facebook') {
             return Socialite::driver($provider)
-                ->fields(['name', 'email'])
-                ->scopes(['public_profile'])
+                ->fields(['name', 'email', 'first_name', 'last_name'])
+                ->setScopes(['public_profile'])  // Use setScopes to override default scopes
                 ->redirect();
         }
 
@@ -46,6 +46,11 @@ class SocialAuthController extends Controller
                     'provider_token' => $socialUser->token,
                     'avatar' => $socialUser->getAvatar(),
                 ]);
+
+                // Mark email as verified if not already
+                if (!$user->hasVerifiedEmail()) {
+                    $user->markEmailAsVerified();
+                }
             } else {
                 // Create new user
                 $user = User::create([
@@ -59,12 +64,14 @@ class SocialAuthController extends Controller
                     'role' => 'free_member',
                     'subscription_tier' => 'free',
                     'is_active' => true,
+                    'email_verified_at' => now(),  // Mark as verified for OAuth users
                 ]);
             }
 
             Auth::login($user, true);
 
-            return redirect()->intended('dashboard');
+            // Redirect to dashboard and strip Facebook's #_=_ fragment
+            return redirect('/dashboard');
 
         } catch (\Exception $e) {
             return redirect('/login')->with('error', 'Failed to authenticate with ' . ucfirst($provider));
