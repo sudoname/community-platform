@@ -2,6 +2,8 @@
     let channel = null;
 
     $watch('channelId', (newChannelId) => {
+        if (typeof window.Echo === 'undefined') return;
+
         if (channel) {
             Echo.leave('chat.channel.' + channel);
         }
@@ -16,7 +18,7 @@
     });
 
     // Initial subscription
-    if (channelId) {
+    if (typeof window.Echo !== 'undefined' && channelId) {
         channel = channelId;
         Echo.join('chat.channel.' + channelId)
             .listen('.message.sent', (e) => {
