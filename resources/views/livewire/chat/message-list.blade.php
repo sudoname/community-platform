@@ -1,32 +1,4 @@
-<div class="p-6 space-y-4" x-data="{ channelId: @entangle('channelId') }" x-init="
-    let channel = null;
-
-    $watch('channelId', (newChannelId) => {
-        if (typeof window.Echo === 'undefined') return;
-
-        if (channel) {
-            Echo.leave('chat.channel.' + channel);
-        }
-        if (newChannelId) {
-            channel = newChannelId;
-            Echo.join('chat.channel.' + newChannelId)
-                .listen('.message.sent', (e) => {
-                    console.log('New message received:', e);
-                    $wire.loadMessages();
-                });
-        }
-    });
-
-    // Initial subscription
-    if (typeof window.Echo !== 'undefined' && channelId) {
-        channel = channelId;
-        Echo.join('chat.channel.' + channelId)
-            .listen('.message.sent', (e) => {
-                console.log('New message received:', e);
-                $wire.loadMessages();
-            });
-    }
-">
+<div class="p-6 space-y-4" wire:key="messages-{{ $channelId }}">
     @forelse($messages as $message)
         <div class="flex space-x-3">
             <!-- Avatar -->
